@@ -1,4 +1,5 @@
 import ast
+import logging
 
 from mixpanel import Mixpanel
 
@@ -6,42 +7,62 @@ from data_event import DataEvent
 from settings import MIXPANEL_PROJECT_TOKEN
 
 
-def send_mixpanel_event(event: DataEvent):
-    mp = Mixpanel(MIXPANEL_PROJECT_TOKEN)
-    distinct_id = event.user_identifier if event.user_identifier else "unknown_user"
-    if event.event_type != "rsync_user_properties_event":
-        event_properties = {}
-        event_properties_fields = []
-        for field in event_properties_fields:
-            value = getattr(event, field)
+class MixpanelEventSender:
+    def __init__(self, event: DataEvent, project_token: str = MIXPANEL_PROJECT_TOKEN) -> None:
+        self.mp = Mixpanel(project_token)
+        self.event = event
+        self.send_event()
+
+    @staticmethod
+    def _parse_str_to_dict(s: str) -> dict:
+        # Safely parse a string into a dictionary.
+        try:
+            return ast.literal_eval(s) if s and s != "None" else {}
+        except Exception as ex:
+            logging.error("Failed to parse event from string: %s", str(ex))
+            return {}
+
+    def _extract_event_properties(self) -> dict:
+        properties = {}
+        extra_info = self._parse_str_to_dict(self.event.extra_info)
+        properties.update({key: str(value) for key, value in extra_info.items() if value})
+        properties["time"] = self.event.timestamp
+        return properties
+
+    def _extract_user_properties(self) -> dict:
+        user_properties = {}
+        internal_mapping = {
+            "email": "$email",
+            "first_name": "$first_name",
+            "last_name": "$last_name",
+            "avatar": "$avatar",
+            "username": "$name",
+        }
+
+        for prop_str in (self.event.location, self.event.device):
+            props = self._parse_str_to_dict(prop_str)
+            user_properties.update({key: str(value) for key, value in props.items() if value})
+
+        user_props = self._parse_str_to_dict(self.event.user_properties)
+        for key, value in user_props.items():
             if value:
-                event_properties[field] = str(value)
-        if event.extra_info and event.extra_info != "None":
-            for key, value in ast.literal_eval(event.extra_info).items():
-                event_properties[key] = str(value)
-        event_properties["time"] = event.timestamp
-        mp.track(distinct_id=distinct_id, event_name=event.event_type, properties=event_properties)
-    user_properties = {}
-    mixpanel_internal_user_properties = {
-        "email": "$email",
-        "first_name": "$first_name",
-        "last_name": "$last_name",
-        "avatar": "$avatar",
-        "username": "$name",
-    }
-    if event.location and event.location != "None":
-        for key, value in ast.literal_eval(event.location).items():
-            if value:
-                user_properties[key] = str(value)
-    if event.device and event.device != "None":
-        for key, value in ast.literal_eval(event.device).items():
-            if value:
-                user_properties[key] = str(value)
-    if event.user_properties and event.user_properties != "None":
-        for key, value in ast.literal_eval(event.user_properties).items():
-            new_key = mixpanel_internal_user_properties.get(key, key)
-            user_properties[new_key] = str(value)
-    mp.people_set(
-        distinct_id=distinct_id,
-        properties=user_properties,
-    )
+                mapped_key = internal_mapping.get(key, key)
+                user_properties[mapped_key] = str(value)
+        return user_properties
+
+    def send_event(self) -> None:
+        distinct_id = self.event.user_identifier or "unknown_user"
+
+        if self.event.event_type != "rsync_user_properties_event":
+            event_properties = self._extract_event_properties()
+            self.mp.track(
+                distinct_id=distinct_id,
+                event_name=self.event.event_type,
+                properties=event_properties,
+            )
+
+        user_properties = self._extract_user_properties()
+        self.mp.people_set(
+            distinct_id=distinct_id,
+            properties=user_properties,
+        )

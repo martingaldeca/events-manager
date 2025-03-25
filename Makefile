@@ -5,6 +5,7 @@ MAKEFLAGS += --no-print-directory
 
 # Constants
 TAIL_LOGS = 50
+PYLINT_FAIL_UNDER = 8
 
 up:
 	$s docker compose up --force-recreate -d
@@ -35,18 +36,18 @@ shell:
 
 
 ruff:
-	$s docker exec ${PROJECT_NAME}_backend ruff check .
+	$s docker exec ${PROJECT_NAME}_data_events ruff check .
 
 pylint:
-	$s docker exec ${PROJECT_NAME}_backend pylint --fail-under=${PYLINT_FAIL_UNDER} apps backend
+	$s docker exec ${PROJECT_NAME}_data_events pylint --fail-under=${PYLINT_FAIL_UNDER} ./
 
 linters: ruff pylint
 
 black:
-	$s docker exec ${PROJECT_NAME}_backend black .
+	$s docker exec ${PROJECT_NAME}_data_events black .
 
 isort:
-	$s docker exec ${PROJECT_NAME}_backend isort .
+	$s docker exec ${PROJECT_NAME}_data_events isort .
 
 code-style: isort black
 

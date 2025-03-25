@@ -50,7 +50,7 @@ jobs:
         run: poetry install --with test
       - name: Pylint check
         working-directory: ./src
-        run: poetry run pylint --fail-under=${{ env.PYLINT_FIL_UNDER_LIMIT }} apps backend
+        run: poetry run pylint --fail-under=${{ env.PYLINT_FIL_UNDER_LIMIT }} ./
   tests:
     if: "!contains(github.event.head_commit.message, 'hotfix') && !contains(github.event.head_commit.message, 'production-testing-deployment')"
     services:

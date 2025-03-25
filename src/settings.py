@@ -17,7 +17,10 @@ MIXPANEL_PROJECT_TOKEN = os.environ.get("MIXPANEL_PROJECT_TOKEN", None)
 EVENT_TABLE_NAME = f"{PROJECT_NAME}_events"
 
 # SQLAlchemy engine and session for ClickHouse
-DATABASE_URL = f"clickhouse://{CLICKHOUSE_USER}:{CLICKHOUSE_PASSWORD}@{PROJECT_NAME}_clickhouse:{CLICKHOUSE_EXTERNAL_PORT}/{CLICKHOUSE_DB}"
+DATABASE_URL = (
+    f"clickhouse://{CLICKHOUSE_USER}:{CLICKHOUSE_PASSWORD}@{PROJECT_NAME}_clickhouse:"
+    f"{CLICKHOUSE_EXTERNAL_PORT}/{CLICKHOUSE_DB}"
+)
 engine = create_engine(DATABASE_URL)
 SessionLocal = make_session(engine)
 Base = get_declarative_base()

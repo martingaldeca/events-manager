@@ -43,19 +43,19 @@ class DataEvent(Base):
 
     def save(self):
         try:
-            from mixpanel_handler import send_mixpanel_event
+            from mixpanel_handler import MixpanelEventSender
 
-            send_mixpanel_event(self)
+            MixpanelEventSender(event=self)
             self.mixpanel_uploaded = 1
         except Exception as ex:
-            logging.error("Failed to log event to Mixpanel: " + str(ex))
+            logging.error("Failed to log event to Mixpanel: %s", str(ex))
             self.mixpanel_uploaded = 0
         session = SessionLocal
         try:
             session.add(self)
             session.commit()
         except Exception as ex:
-            logging.error("Failed to save event in database: " + str(ex))
+            logging.error("Failed to save event in database: %s", str(ex))
         finally:
             session.close()
 
