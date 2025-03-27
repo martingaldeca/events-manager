@@ -95,7 +95,7 @@ jobs:
           envFile: '.env-dist'
       - name: Test core
         working-directory: ./src
-        run: python -m unittest discover test
+        run: poetry run python -m unittest discover test
 
   production-deploy:
     if: "github.ref == 'refs/heads/production' || contains(github.event.head_commit.message, 'production-testing-deployment')"
