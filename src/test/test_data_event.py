@@ -31,9 +31,10 @@ class DataEventTest(unittest.TestCase):
         mock_session.commit.assert_called_once()
         mock_session.close.assert_called_once()
 
+    @patch("logging.error")
     @patch("data_event.SessionLocal", new_callable=MagicMock)
     @patch("mixpanel_handler.MixpanelEventSender", side_effect=Exception("Mixpanel error"))
-    def test_save_mixpanel_failure(self, mock_mixpanel, mock_session):
+    def test_save_mixpanel_failure(self, mock_mixpanel, mock_session, _):
         data_event = DataEvent(posted_event=self.posted_event)
         data_event.save()
 

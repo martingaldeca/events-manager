@@ -36,8 +36,9 @@ class MainTest(unittest.TestCase):
         self.assertIsNone(json_response.get("event_error"))
         app.dependency_overrides.pop(api_key_auth, None)
 
+    @patch("logging.error")
     @patch("main.DataEvent")
-    def test_create_event_handles_exception(self, mock_data_event):
+    def test_create_event_handles_exception(self, mock_data_event, _):
         payload = {"timestamp": "2021-01-01T00:00:00", "event_type": "test_event"}
         instance = mock_data_event.return_value
         instance.save.side_effect = Exception("Test exception")
