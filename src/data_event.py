@@ -31,7 +31,7 @@ class DataEvent(Base):
     def __init__(self, posted_event=None, **kwargs):
         super().__init__(**kwargs)
         if posted_event:
-            self.timestamp = datetime.strptime(posted_event.timestamp, "%Y-%m-%dT%H:%M:%S")
+            self.timestamp = datetime.strptime(posted_event.timestamp, "%Y-%m-%dT%H:%M:%S.%f%z")
             self.event_type = posted_event.event_type
             self.user_identifier = posted_event.user_identifier
             self.extra_info = str(posted_event.extra_info) if posted_event.extra_info else None
