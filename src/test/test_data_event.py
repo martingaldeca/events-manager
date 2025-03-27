@@ -9,7 +9,7 @@ class DataEventTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.posted_event = PostedEvent(
-            timestamp="2023-01-01T12:00:00",
+            timestamp="2023-01-01T12:00:00.000000+00:00",
             event_type="test_event",
             user_identifier="user_123",
             extra_info={"key": "value"},

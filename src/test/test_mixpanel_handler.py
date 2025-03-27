@@ -10,7 +10,7 @@ class MixpanelEventSenderTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.event = DataEvent()
-        self.event.timestamp = datetime(2023, 1, 1, 12, 0, 0)
+        self.event.timestamp = datetime(2023, 1, 1, 12, 0, 0).isoformat()
         self.event.event_type = "test_event"
         self.event.user_identifier = "user_123"
         self.event.extra_info = "{'key': 'value'}"
