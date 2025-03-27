@@ -110,4 +110,4 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           password: ${{ secrets.PROD_PASSWORD }}
           port: ${{ secrets.PROD_PORT }}
-          script: cd events-manager && git fetch && git pull && echo PUBLIC_IP=${{secrets.PROD_PUBLIC_IP}} >> .env && echo MINIMUM_REQUIRED_APP_VERSION_ANDROID=${{secrets.PROD_MINIMUM_REQUIRED_APP_VERSION_ANDROID}} >> .env && make complete-build && cd && echo "cicd-events-manager,$(date '+%Y-%m-%d %H:%M:%S')" >> deployments.csv
+          script: cd events-manager && git fetch && git pull && make complete-build && cd && echo "cicd-events-manager,$(date '+%Y-%m-%d %H:%M:%S')" >> deployments.csv
